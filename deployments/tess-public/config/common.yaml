@@ -1,5 +1,10 @@
+daskKubernetes:
+  serviceAccount:
+    enabled: true
+
 jupyterhub:
   singleuser:
     memory:
       guarantee: 512M
       limit: 1G
+    serviceAccountName: dask-kubernetes

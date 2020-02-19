@@ -9,7 +9,11 @@ nfsPVC:
     # serverIP: # IP of your NFS Server
     # shareName: # Path of your NFS share export
 
-jupyterhub: {}
+daskKubernetes:
+  serviceAccount:
+    enabled: false
+
+jupyterhub:
   hub:
     extraConfig:
       01-working-dir: |
