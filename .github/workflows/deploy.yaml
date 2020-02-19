@@ -39,12 +39,22 @@ jobs:
           entrypoint: /bin/bash
           args: -c "helm init --client-only && helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/ && helm repo update"
       - uses: docker://yuvipanda/hubploy:20200219094916edf788
-        name: Deploy to staging
+        name: Deploy tess-public to staging
         if: github.ref == 'refs/heads/staging'
         with:
           args: deploy tess-public hub staging
       - uses: docker://yuvipanda/hubploy:20200219094916edf788
-        name: Deploy to prod
+        name: Deploy tess-private to staging
+        if: github.ref == 'refs/heads/staging'
+        with:
+          args: deploy tess-private hub staging
+      - uses: docker://yuvipanda/hubploy:20200219094916edf788
+        name: Deploy tess-public to prod
         if: github.ref == 'refs/heads/prod'
         with:
           args: deploy tess-public hub prod
+      - uses: docker://yuvipanda/hubploy:20200219094916edf788
+        name: Deploy tess-private to prod
+        if: github.ref == 'refs/heads/prod'
+        with:
+          args: deploy tess-private hub prod
