@@ -7,6 +7,8 @@ on:
 
 jobs:
   build:
+    env:
+      HELM_EXECUTABLE: helm3
     name:
     # This job runs on Linux
     runs-on: ubuntu-latest
