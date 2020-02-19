@@ -3,6 +3,8 @@ daskKubernetes:
     enabled: true
 
 jupyterhub:
+  auth:
+    type: github
   cull:
     enabled: true
     timeout: 1800 # 30min idleness
