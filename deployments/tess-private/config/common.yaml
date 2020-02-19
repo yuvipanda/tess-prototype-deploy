@@ -5,7 +5,7 @@ daskKubernetes:
 jupyterhub:
   cull:
     enabled: true
-    timeout: 180 # 30min idleness
+    timeout: 1800 # 30min idleness
   proxy:
     https:
       letsencrypt:

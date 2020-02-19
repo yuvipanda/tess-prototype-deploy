@@ -6,8 +6,8 @@ jupyterhub:
   cull:
     enabled: true
     users: true
-    timeout: 60 # 10 minutes of idleness
-    maxAge: 480 # 8h max
+    timeout: 600 # 10 minutes of idleness
+    maxAge: 28800 # 8h max
   auth:
     type: tmp
   proxy:
