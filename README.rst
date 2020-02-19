@@ -7,7 +7,7 @@ This repository contains the fully specified deployment files for the prototype
 TESS platform.
 
 What is the TESS science platform?
-=================================
+==================================
 
 The following is an exerpt from `A Proposal for a Science Platform for TESS
 <https://innerspace.stsci.edu/pages/viewpage.action?spaceKey=DSMO&title=A+Proposal+for+a+Science+Platform+for+TESS>`_
@@ -31,6 +31,42 @@ This prototype has two primary deployments:
 
 Both of these deployments will have very similar features, but differ in terms of resources
 allocated to them.
+
+Demo!
+=====
+
+TESS Public
+-----------
+
+`tess.omgwtf.in <https://tess.omgwtf.in>`_ is an emphemeral, mybinder.org style,
+unauthenticated hub focused on outreach and teaching.
+
+`nbgitpuller <https://jupyterhub.github.io/nbgitpuller/>`_ is installed, so you can
+`make nbgitpuller links <https://nbgitpuller.link>`_ to share with users.
+When clicked, they will start an ephemeral session, pull in the git repo linked to,
+and open the appropriate directory / file.
+
+`This link <https://tess.omgwtf.in/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fspacetelescope%2Fnotebooks&urlpath=lab%2Ftree%2Fnotebooks%2Fnotebooks%2FMAST%2FTESS%2F>`_
+opens the `spacetelescope/notebooks <https://github.com/spacetelescope/notebooks>`_
+git repo, but opens specifically into the TESS related directory. `This link
+<https://tess.omgwtf.in/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fspacetelescope%2Fnotebooks&urlpath=lab%2Ftree%2Fnotebooks%2Fnotebooks%2FMAST%2FTESS%2Fbeginner_how_to_use_ffi%2Fbeginner_how_to_use_ffi.ipynb>`_
+is almost the same, but opens a specific notebook.
+
+TESS Private
+------------
+
+`private.tess.omgwtf.in <https://private.tess.omgwtf.in>`_ is an authenticated
+JupyterHub with persistent storage, otherwise similar to TESS Private. It currently
+uses GitHub for authentication, but lets everyone with a GitHub account through.
+
+nbgitpuller links (`directory <https://private.tess.omgwtf.in/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fspacetelescope%2Fnotebooks&urlpath=lab%2Ftree%2Fnotebooks%2Fnotebooks%2FMAST%2FTESS%2F>`_,
+`notebook <https://private.tess.omgwtf.in/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fspacetelescope%2Fnotebooks&urlpath=lab%2Ftree%2Fnotebooks%2Fnotebooks%2FMAST%2FTESS%2Fbeginner_how_to_use_ffi%2Fbeginner_how_to_use_ffi.ipynb>`_)
+work here as well, with the added advantage that nbgitpuller will
+do 'automagic' merging for you, so both the author of the git repo *and* the user in
+JupyterHub can make changes to the notebook, and it will `always preserve the user's
+changes <https://jupyterhub.github.io/nbgitpuller/topic/automatic-merging.html>`_. This
+is extremely useful in workshops, since instructors can continue tweaking materials after
+start of the workshop without worry of overwriting students' work.
 
 
 What is this repo?
