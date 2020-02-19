@@ -1,0 +1,5 @@
+jupyterhub:
+  proxy:
+    https:
+      hosts:
+        - private.tess.omgwtf.in

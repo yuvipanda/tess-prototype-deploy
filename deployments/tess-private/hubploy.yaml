@@ -1,7 +1,7 @@
 images:
   images:
     - name: 454929164628.dkr.ecr.us-east-1.amazonaws.com/yuvipanda-test-cluster-user-image
-      path: ../tess-private/images/default
+      path: images/default
 
   registry:
     provider: aws

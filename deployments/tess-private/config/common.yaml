@@ -1,0 +1,20 @@
+daskKubernetes:
+  serviceAccount:
+    enabled: true
+
+jupyterhub:
+  cull:
+    enabled: true
+    timeout: 180 # 30min idleness
+  proxy:
+    https:
+      letsencrypt:
+        contactEmail: yuvipanda@gmail.com
+      enabled: false
+  singleuser:
+    memory:
+      guarantee: 128M
+      limit: 1G
+    storage:
+      dynamic:
+        storageClass: aws-efs
