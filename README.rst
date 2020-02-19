@@ -1,221 +1,102 @@
-================
-hubploy-template
-================
+===============================
+Prototype TESS Science Platform
+===============================
 
-Template for fully specified JupyterHub deployment with hubploy.
 
-Step 0: Set up your pre-requisites
-==================================
+This repository contains the fully specified deployment files for the prototype
+TESS platform.
 
-hubploy does *not* manage your cloud resources - only your *Kubernetes*
-resources. You should use some other means to create your cloud
-resources. At a minimum, hubploy expects a Kubernetes cluster with [helm
-installed](https://zero-to-jupyterhub.readthedocs.io/en/latest/setup-jupyterhub/setup-helm.html).
-Many installations want to use a shared file system for home
-directories, so in those cases you want to have that managed outside
-hubploy as well.
+What is the TESS science platform?
+=================================
 
-You also need the following tools installed:
+The following is an exerpt from `A Proposal for a Science Platform for TESS
+<https://innerspace.stsci.edu/pages/viewpage.action?spaceKey=DSMO&title=A+Proposal+for+a+Science+Platform+for+TESS>`_
 
-#. Your cloud vendor's commandline tool.
+We propose to create a TESS-focused, JupyterHub-based, science platform that will allow users to:
 
-   #. `Google Cloud SDK <https://cloud.google.com/sdk/>`_ for Google Cloud
-   #. `AWS CLI <https://aws.amazon.com/cli/>`_ for AWS
-   #. `Azure CLI <https://docs.microsoft.com/en-us/cli/azure/>`_ for Azure
+1. quickly and easily visualize the TESS data and the community delivered
+   HLSPs.
+2. explore cloud-based computational resources as a way to make the
+   most use of the large amount of TESS FFI data.
+3. teach the methods and tools to work with MAST's time series data using a
+   stable, collaborative environment and high quality tutorials.
 
-#. A local install of `helm 2 <https://helm.sh/>`_. Note that helm 3 is *not*
-   supported yet. The client version should match the version on your server (you
-   can find your server version with ``helm version``.
-
-#. A `docker environment <https://docs.docker.com/install/>`_ that you can use. This
-   is only needed when building images.
-
-Step 1: Install hubploy
-=======================
-
-.. code:: bash
-
-   python3 -m venv .
-   source bin/activate
-   python3 -m pip install -r requirements.txt
-
-This installs hubploy its dependencies
-
-Step 2: Rename the hub to something more sensible
-=================================================
-
-Each directory inside ``deployments/`` represents an installation of
-JupyterHub. The default is called ``myhub``, but *please* rename it to
-something more descriptive. ``git commit`` the result as well.
-
-.. code:: bash
-
-   git mv deployments/myhub deployments/<your-hub-name>
-   git commit
-
-Step 3: Fill in all the config details
-======================================
-
-You need to find all things marked TODO and fill them in. In particular,
-
-1. ``hubploy.yaml`` needs information about where your docker registry &
-   kubernetes cluster is, and paths to access keys as well.
-2. ``secrets/prod.yaml`` and ``secrets/staging.yaml`` require secure
-   random keys you can generate and fill in.
-
-Step 4: Build and push the image
-================================
-
-1. Make sure tha appropriate docker credential helper is installed, so
-   hubploy can push to the registry you need.
-
-   For AWS, you need `docker-ecr-credential-helper <https://github.com/awslabs/amazon-ecr-credential-helper>`_
-   For Google Cloud, you need the `gcloud commandline tool <https://cloud.google.com/sdk/>`_
-
-2. Make sure you are in your repo's root directory, so hubploy can find the
-   directory structure it expects.
-
-3. Build and push the image to the registry
-
-   .. code:: bash
-
-      hubploy build <hub-name> --push --check-registry
-
-   This should check if the user image for your hub needs to be rebuilt,
-   and if so, it’ll build and push it.
-
-Step 5: Deploy the staging hub
-==============================
-
-Each hub will always have two versions - a *staging* hub that isn’t used
-by actual users, and a *production* hub that is. These two should be
-kept as similar as possible, so you can fearlessly test stuff on the
-staging hub without feaer that it is going to crash & burn when deployed
-to production.
-
-To deploy to the staging hub,
-
-.. code:: bash
-
-   hubploy deploy <hub-name> hub staging
-
-This should take a while, but eventually return successfully. You can
-then find the public IP of your hub with:
-
-.. code:: bash
-
-   kubectl -n <hub-name>-staging get svc public-proxy
-
-If you access that, you should be able to get in with any username &
-password.
-
-The defaults provision each user their own EBS / Persistent Disk, so
-this can get expensive quickly :) Watch out!
-
-Step 6: Customize your hub
+What is in this prototype?
 ==========================
 
-You can now customize your hub in two major ways:
+This prototype has two primary deployments:
 
-#. Customize the hub image. `repo2docker`_ is used to build the image,
-   so you can put any of the `supported configuration files`_ under
-   ``deployments/<hub-image>/image``. You *must* make a git commit after
-   modifying this for
-   ``hubploy build <hub-name> --push --check-registry`` to work, since
-   it uses the commit hash as the image tag.
+1. **tess-public**: An ephemeral, mybinder.org style, open to the public JupyterHub focused on outreach
+2. **tess-private**: A persistent, authenticated JupyterHub focused on collaborative research
 
-#. Customize hub configuration with various YAML files.
-
-   #. ``hub/values.yaml`` is common to *all* hubs that exist in this repo
-      (multiple hubs can live under ``deployments/``).
-
-   #. ``deployments/<hub-name>/config/common.yaml`` is where most of the config specific
-      to each hub should go. Examples include memory / cpu limits, home directory
-      definitions, etc
-
-   #. ``deployments/<hub-name>/config/staging.yaml`` and ``deployments/<hub-name>/config/prod.yaml``
-      are files specific to the staging & prod versions of the hub. These should be
-      *as minimal as possible*. Ideally, only DNS entries, IP addresses, should be here.
-
-   #. ``deployments/<hub-name>/secrets/staging.yaml`` and ``deployments/<hub-name>/secrets/prod.yaml``
-       should contain information that mustn't be public. This would be proxy / hub
-       secret tokens, any authentication tokens you have, etc. These files *must* be
-       protected by something like `git-crypt <https://github.com/AGWA/git-crypt>`_ or
-       `sops <https://github.com/mozilla/sops`_. **THIS REPO TEMPLATE DOES NOT HAVE
-       THIS PROTECTION SET UP YET**
+Both of these deployments will have very similar features, but differ in terms of resources
+allocated to them.
 
 
-You can customize the staging hub, deploy it with ``hubploy deploy <hub-name> hub staging``, and iterate until you like how it behaves.
+What is this repo?
+==================
 
-Step 7: Deploy to prod
-======================
+This repository captures the complete system state of all the deployments for this prototype.
+This includes any AWS resources, the configuration of the JupyterHubs, secrets required to run
+the JupyterHubs, and the images themselves. This lets us do `continuous deployment
+<https://www.atlassian.com/continuous-delivery/continuous-deployment`_ - most changes to the
+configuration are made via GitHub pull requests to this repository. We will run automated tests
+against the pull request, and when satisfied, *merge* the pull request, which will deploy the
+changes. This increases the number of people who can safely make changes to the configuration
+of the hubs, empowering people to make changes as well as reducing the load on the folks who
+set up the infrastructure.
 
-You can then do a production deployment with: ``hubploy deploy <hub-name> hub prod``, and
-test it out!
-
-Step 8: Setup git-crypt for secrets
-===================================
-
-`git-crypt <https://github.com/AGWA/git-crypt>`_ is used to keep encrypted secrets in the
-git repository. We would eventually like to use something like `sops <https://github.com/mozilla/sops>`_
-but for now...
-
-1. Install git-crypt. You can get it from brew or your package manager.
-
-2. In your repo, initialize it.
-
-   .. code:: bash
-
-      git crypt init
-
-3. In ``.gitattributes`` have the following contents:
-
-   .. code::
-
-      deployments/*/secrets/** filter=git-crypt diff=git-crypt
-      deployments/**/secrets/** filter=git-crypt diff=git-crypt
-      support/secrets.yaml filter=git-crypt diff=git-crypt
-
-4. Make a copy of your encryption key. This will be used to decrypt the secrets.
-   You will need to share it with your CD provider, and anyone else.
-
-   .. code::
-
-      git crypt export-key key
-
-   This puts the key in a file called 'key'
-
-Step 9: GitHub workflows
-========================
-
-1. Get a base64 copy of your key
-
-   .. code:: block
-
-      cat key | base64
-
-2. Put it as a secret named GIT_CRYPT_KEY in github secrets.
-
-3. Make sure you change the `myhub` to your deployment name in the
-   workflows under `.github/workflows`.
-
-4. Push to the staging branch, and check out GitHub actions, to
-   see if your action goes to completion.
-
-5. If the staging action succeeds, make a PR from staging to prod,
-   and merge this PR. This should also trigger an action - see if
-   this works out.
-
-**Note**: *Always* make a PR from staging to prod, never push directly to
-prod. We want to keep the staging and prod branches as close to each
-other as possible, and this is the only long term guaranteed way to do
-that.
+This is modelled around the deployment models of the `PANGEO project
+<https://github.com/pangeo-data/pangeo-cloud-federation/>`_, the `mybinder.org project
+<https://github.com/jupyterhub/mybinder.org-deploy>`_, `UC Berkeley's instructional hubs
+<https://github.com/berkeley-dsep-infra/datahub>`_ and many other projects that are using
+`hubploy <github.com/yuvipanda/hubploy>`_.
 
 
-TODO
-====
+What is in this repository?
+===========================
 
-1. What kinda kubernetes setup this needs
+User Image (``image/``)
+-----------------------
 
-.. _repo2docker: https://repo2docker.readthedocs.io/
-.. _supported configuration files: https://repo2docker.readthedocs.io/en/latest/config_files.html
+We try to use the same image for the private and public instances, and this image is
+present in ``deployments/tess-private/images/default``.
+
+`repo2docker <https://repo2docker.readthedocs.io/en/latest/>`_ is used to
+build the actual user image, so you can use any of the `supported config files
+<https://repo2docker.readthedocs.io/en/latest/config_files.html>`_ to customize
+the image as you wish. Currently, the ``environment.yml`` file does most of the work.
+
+Hub Config (``config/`` and ``secrets/``)
+-----------------------------------------
+
+All the JupyterHubs are based on `Zero to JupyterHub (z2jh) <http://z2jh.jupyter.org/>`_.
+z2jh uses configuration files in `YAML <https://en.wikipedia.org/wiki/YAML>`_ format
+to specify exactly how the hub is configured. For convenience, and to make sure we do
+not repeat ourselves, this config is split into multiple files that form a hierarchy.
+
+
+#. ``hub/values.yaml`` contains config common to all the hubs in this repository
+#. ``deployments/<deployment>/config/common.yaml`` is the primary config for the hub
+   referred to by ``<deployment>``. The values here override ``hub/values.yaml``.
+#. ``deployments/<deployment>/config/staging.yaml`` and ``deployments/<deployment>/config/prod.yaml``
+   have config that is specific to the staging or production versions of the deployment.
+   These should be as minimal as possible, since we try to keep staging & production as
+   close to each other as possible.
+
+Further, we use `git-crypt <https://github.com/AGWA/git-crypt>`_ to store encrypted
+secrets in this repository (although we would like to move to `sops <https://github.com/mozilla/sops>`_
+in the future). Encrypted config (primarily auth tokens and other secret tokens) are
+stored in ``deployments/<deployment>/secrets/staging.yaml`` and ``deployments/<deployment>/secrets/prod.yaml``.
+There is no ``common.yaml``, since staging & production should not share any secret values.
+
+
+``hubploy.yaml``
+----------------
+
+We use `hubploy <https://github.com/yuvipanda/hubploy>`_ to deploy our hubs in a
+repeatable fashion. ``hubploy.yaml`` contains information required for hubploy to
+work - such as cluster name, region, provider, etc.
+
+Various secret keys used to authenticate to cloud providers are kept under ``secrets/``
+for that deployment and referred to from ``hubploy.yaml``.
