@@ -10,5 +10,12 @@ nfsPVC:
     # shareName: # Path of your NFS share export
 
 jupyterhub: {}
-    # z2jh customizations go here
+  hub:
+    extraConfig:
+      01-working-dir: |
+        # FIXME: This should be automatically set by repo2docker
+        c.KubeSpawner.working_dir = '/home/jovyan'
 
+      02-jupyterlab: |
+        c.Spawner.cmd = ['jupyter-labhub']
+        c.Spawner.default_url = '/lab'
