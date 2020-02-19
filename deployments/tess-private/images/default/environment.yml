@@ -3,12 +3,16 @@ channels:
 dependencies:
 # Interfaces
 - jupyterlab
+- ipywidgets
+- jupyter-server-proxy
 - voila
 - pip
 - pip:
   - nbgitpuller
+  - dask_labextension
 # dask
 - dask
+- distributed
 - dask-kubernetes
 # base science
 - numpy
@@ -23,3 +27,5 @@ dependencies:
 # network & aws
 - requests
 - boto3
+- s3fs
+- awscli
