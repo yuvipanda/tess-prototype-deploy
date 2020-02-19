@@ -14,9 +14,6 @@ jupyterhub:
         contactEmail: yuvipanda@gmail.com
       enabled: true
   singleuser:
-    memory:
-      guarantee: 128M
-      limit: 1G
     storage:
       dynamic:
         storageClass: aws-efs

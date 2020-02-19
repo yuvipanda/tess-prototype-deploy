@@ -1,0 +1,20 @@
+{{ if .Values.daskKubernetes.configMap.enabled }}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: user-etc-dask
+  labels:
+    app: jupyterhub
+    component: etc-dask
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+  {{- range $name, $content := .Values.daskKubernetes.configMap.etcDask }}
+  {{- if eq (typeOf $content) "string" }}
+  {{ $name }}: |
+    {{- $content | nindent 4 }}
+  {{- else }}
+  {{ $name }}: {{ $content | toJson | quote }}
+  {{- end }}
+  {{- end }}
+{{- end }}

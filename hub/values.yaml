@@ -9,11 +9,21 @@ nfsPVC:
     # serverIP: # IP of your NFS Server
     # shareName: # Path of your NFS share export
 
-daskKubernetes:
-  serviceAccount:
-    enabled: false
 
 jupyterhub:
+  singleuser:
+    serviceAccountName: dask-kubernetes
+    memory:
+      guarantee: &mem_request 128M
+      limit: &mem_limit 1G
+    storage:
+      extraVolumes:
+        - name: etc-dask
+          configMap:
+            name: user-etc-dask
+      extraVolumeMounts:
+        - name: etc-dask
+          mountPath: /etc/dask
   hub:
     extraConfig:
       01-no-root: |
@@ -34,3 +44,52 @@ jupyterhub:
       03-jupyterlab: |
         c.Spawner.cmd = ['jupyter-labhub']
         c.Spawner.default_url = '/lab'
+
+daskKubernetes:
+  configMap:
+    enabled: true
+    etcDask:
+      dashboard.yaml:
+        distributed:
+          dashboard:
+            link: "{JUPYTERHUB_SERVICE_PREFIX}proxy/{port}/status"
+
+      kubernetes.yaml:
+        kubernetes:
+          name: dask-{HOSTNAME}-{uuid}
+          worker-template:
+            kind: Pod
+            spec:
+              restartPolicy: Never
+              affinity:
+                nodeAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                    nodeSelectorTerms:
+                      - matchExpressions:
+                          - key: hub.jupyter.org/node-purpose
+                            operator: In
+                            values:
+                              - user
+              tolerations:
+                - effect: NoSchedule
+                  key: hub.jupyter.org/dedicated
+                  operator: Equal
+                  value: user
+                - effect: NoSchedule
+                  key: hub.jupyter.org_dedicated
+                  operator: Equal
+                  value: user
+              containers:
+                  # Use the same image as currently running notebook container
+                - image: ${JUPYTER_IMAGE_SPEC}
+                  imagePullPolicy: IfNotPresent
+                  # FIXME: Add memory limit here dynamically?
+                  args: [dask-worker, --nthreads, '4', --dashboard, --death-timeout, '60']
+                  name: dask
+                  resources:
+                    limits:
+                      memory: *mem_limit
+                    requests:
+                      memory: *mem_request
+  serviceAccount:
+    enabled: true
