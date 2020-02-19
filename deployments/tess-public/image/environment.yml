@@ -16,5 +16,10 @@ dependencies:
 # viz
 - matplotlib
 - altair
-# astropy
+# astro
 - astropy
+- astroquery
+- lightkurve
+# network & aws
+- requests
+- boto3
