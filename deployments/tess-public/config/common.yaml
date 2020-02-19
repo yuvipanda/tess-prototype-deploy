@@ -5,6 +5,8 @@ daskKubernetes:
 jupyterhub:
   proxy:
     https:
+      letsencrypt:
+        contactEmail: yuvipanda@gmail.com
       enabled: true
   singleuser:
     memory:
