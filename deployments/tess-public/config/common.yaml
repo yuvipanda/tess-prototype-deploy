@@ -1,8 +1,15 @@
 daskKubernetes:
   serviceAccount:
-    enabled: true
+    enabled: false
 
 jupyterhub:
+  cull:
+    enabled: true
+    users: true
+    timeout: 60 # 10 minutes of idleness
+    maxAge: 480 # 8h max
+  auth:
+    type: tmp
   proxy:
     https:
       letsencrypt:
@@ -10,6 +17,7 @@ jupyterhub:
       enabled: true
   singleuser:
     memory:
-      guarantee: 512M
+      guarantee: 128M
       limit: 1G
-    serviceAccountName: dask-kubernetes
+    storage:
+      type: nil
