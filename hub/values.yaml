@@ -20,12 +20,13 @@ jupyterhub:
         # Prevent users from escalating to root
         # Disables functioning of setuid binaries like sudo
         c.KubeSpawner.extra_container_config = {
-          'securityContext:' {
+          'securityContext': {
             'runAsUser': 1000,
             'privileged': False,
             'allowPrivilegeEscalation': False
           }
         }
+
       02-working-dir: |
         # FIXME: This should be automatically set by repo2docker
         c.KubeSpawner.working_dir = '/home/jovyan'
