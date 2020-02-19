@@ -3,3 +3,7 @@ jupyterhub:
     continuous:
       # Don't need continuous pre-puller on staging
       enabled: false
+  proxy:
+    https:
+      hosts:
+        - staging.tess.omgwtf.in

@@ -1,1 +1,5 @@
-jupyterhub: {}
+jupyterhub:
+  proxy:
+    https:
+      hosts:
+        - tess.omgwtf.in
