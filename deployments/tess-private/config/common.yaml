@@ -10,7 +10,7 @@ jupyterhub:
     https:
       letsencrypt:
         contactEmail: yuvipanda@gmail.com
-      enabled: false
+      enabled: true
   singleuser:
     memory:
       guarantee: 128M
