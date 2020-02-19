@@ -67,6 +67,8 @@ build the actual user image, so you can use any of the `supported config files
 <https://repo2docker.readthedocs.io/en/latest/config_files.html>`_ to customize
 the image as you wish. Currently, the ``environment.yml`` file does most of the work.
 
+.. _readme/repo-contents/config:
+
 Hub Config (``config/`` and ``secrets/``)
 -----------------------------------------
 
@@ -100,3 +102,83 @@ work - such as cluster name, region, provider, etc.
 
 Various secret keys used to authenticate to cloud providers are kept under ``secrets/``
 for that deployment and referred to from ``hubploy.yaml``.
+
+Terraform for AWS Infrastructure
+--------------------------------
+
+We need the following AWS resources set up for the hubs to run properly:
+
+1. A kubernetes cluster via `Amazon EKS <https://aws.amazon.com/eks/>`_, with multiple
+   node groups for 'core' and 'user' nodes.
+2. Home directory storage in `Amazon EFS <https://aws.amazon.com/efs/>`_
+3. Per-cluster tools, such as `cluster autoscaler <https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler>`_
+   and `EFS Provisioner <https://github.com/kubernetes-incubator/external-storage/tree/master/aws/efs>`_.
+4. Appropriate `IAM User Credentials <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users.html>`_.
+
+Instead of creating and maintaining these resourrces manually, we use the popular
+`terraform <https://www.terraform.io/>`_ tool to do so for us. There is an attempt to
+build a community-wide terraform template that can be used by different domains that need
+a JupyterHub+Dask analytics cluster at https://github.com/pangeo-data/terraform-deploy. We
+refer to it via a `git submodule <https://git-scm.com/book/en/v2/Git-Tools-Submodules>`_ in
+this repo under ``cloud-infrastructure``, with parameters set in ``infrastructure.tfvars``.
+
+This is heavily a work in progress, but the hope is that eventually we'll have security,
+performance and cost optimized clusters that can be set up from this template.
+
+Deploying a change with this repo
+=================================
+
+Step 1: Make a pull request
+---------------------------
+
+Identify the files to be modified to effect the change you seek.
+
+#. All files related to the user image are in ``deployments/tess-private/images/default`` -
+   all deployments share this image. `repo2docker <https://repo2docker.readthedocs.io/en/latest/>`_ is
+   used to build image, so you can use any of the `supported config files
+   <https://repo2docker.readthedocs.io/en/latest/config_files.html>`_ to customize
+   the image as you wish.
+
+   Currently, the ``environment.yml`` file has all packages, while JupyterLab plugins are installed
+   via ``postBuild``.
+
+#. Most JupyterHub related config files are in ``hub/values.yaml``, with per-deployment overrides in
+   ``deployments/<deployment>/config/``. See `section on config files <readme/repo-contents/config>`_
+   earlier in this document.
+
+#. Make a PR with your changes to this repo
+
+#. This will trigger a `GitHub Action <https://github.com/features/actions>`_ on the
+   PR. Note that at this point, it *only tests the image* to make sure it builds properly.
+   No tests are performed on the configuration. Wait for this test to pass. If it fails,
+   fix it until it passes.
+
+Step 2: Deploy to staging
+-------------------------
+
+#. Merge the PR to the *staging* branch. This kicks off another GitHub action to
+   deploy the changes to the staging hubs of both deployments. You can follow
+   this in the `Actions <https://github.com/yuvipanda/tess-prototype-deploy/actions>`_
+   tab in GitHub.
+#. Once complete, test out the change you made in staging. Both the staging hubs
+   use the same image, so you can use either to test image changes. Test config
+   changes on the appropriate staging hub.
+
+   - Staging for Tess Public is https://staging.tess.omgwtf.in/
+   - Staging for Tess Private is https://staging.private.tess.omgwtf.in/
+
+#. If something isn't working like you think it should, repeat the process of making
+   PRs and merging them to staging until it is.
+
+Step 3: Deploy to production
+-----------------------------
+
+#. When you are satisfied with staging, time to deploy to production! Make a PR merging
+   the current staging branch to prod - always use `this handy link
+   <https://github.com/yuvipanda/tess-prototype-deploy/compare/prod...staging>`_. You
+   shouldn't merge *your* PR into prod - you should only merge *staging* to prod. This
+   keeps our git histories clean, and helps makes reverts easy as well.
+
+#. Merging this PR will kick off a GitHub action that'll deploy the change to production.
+   If you already have a running server, you have to restart it to pick up new image
+   changes (File -> Hub Control Panel).
