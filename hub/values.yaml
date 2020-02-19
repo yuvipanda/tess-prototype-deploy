@@ -16,10 +16,20 @@ daskKubernetes:
 jupyterhub:
   hub:
     extraConfig:
-      01-working-dir: |
+      01-no-root: |
+        # Prevent users from escalating to root
+        # Disables functioning of setuid binaries like sudo
+        c.KubeSpawner.extra_container_config = {
+          'securityContext:' {
+            'runAsUser': 1000,
+            'privileged': False,
+            'allowPrivilegeEscalation': False
+          }
+        }
+      02-working-dir: |
         # FIXME: This should be automatically set by repo2docker
         c.KubeSpawner.working_dir = '/home/jovyan'
 
-      02-jupyterlab: |
+      03-jupyterlab: |
         c.Spawner.cmd = ['jupyter-labhub']
         c.Spawner.default_url = '/lab'
