@@ -261,5 +261,10 @@ Things to do
    way to do this is to use `EFS Access Points <https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html>`_.
    This needs upstream work in the `AWS CSI Driver <https://github.com/kubernetes-sigs/aws-efs-csi-driver/issues/124>`_.
    Switching to the AWS CSI Driver will also give us encryption in transit for home directories.
+   We need the CSI driver to `add dynamic provisioning support <https://github.com/kubernetes-sigs/aws-efs-csi-driver/issues/6>`_
+   first, though.
 #. tess-public and tess-private need to be on completely isolated resources - VPC, Cluster, etc.
    We can do this when we really open it up to the public.
+
+Ideally, we would be able to put resources into some of these upstream fixes - they are fairly
+well specified and isolated.
