@@ -218,3 +218,48 @@ Step 3: Deploy to production
 #. Merging this PR will kick off a GitHub action that'll deploy the change to production.
    If you already have a running server, you have to restart it to pick up new image
    changes (File -> Hub Control Panel).
+
+Security characteristics
+========================
+
+We shall try to use secure defaults wherever possible, while making
+sure we do not affect usability too much.
+
+Things we have done
+-------------------
+
+#. Use `efs-provisioner <https://github.com/helm/charts/tree/master/stable/efs-provisioner>`_
+   for setting up NFS home directories. This way, each user's pod only
+   gets to mount their particular home directory, instead of mounting
+   the entire NFS share.
+#. Use a `securityContext <https://kubernetes.io/docs/tasks/configure-pod-container/security-context/>`_
+   to run user pods as a non-root user, and disable any setuid binaries (like sudo)
+   with `no-new-privs <https://www.kernel.org/doc/html/latest/userspace-api/no_new_privs.html>`_.
+#. Disable user access to `instance metadata endpoint <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html>`_,
+   which often contains sensitive credentials.
+
+Things to do
+------------
+
+#. Set up a `PodSecurityPolicy <https://kubernetes.io/docs/concepts/policy/pod-security-policy/>`_
+   to control what kind of pods `dask-kubernetes <https://kubernetes.dask.org/en/latest/>`_
+   can create. This is currently a biggish security hole, since the ability to create
+   arbitrary pods can be easily escalated to root. Should be fixed shortly.
+#. Enable `NetworkPolicy <https://kubernetes.io/docs/concepts/services-networking/network-policies/>`_
+   to set up internal firewalls, so we only permit whitelisted internal traffic.
+   We could also possibly restrict outbound traffic to only ports 80 and 443.
+#. Put our worker nodes in a private subnet - currently they are all in a
+   public subnet since EKS managed node groups do not support `private subnets
+   <https://github.com/aws/containers-roadmap/issues/607>`_. This needs to be
+   fixed by Amazon, or we can use non-managed nodegroups.
+#. Switch to using `dask-gateway <https://github.com/dask/dask-gateway>`_
+   instead of dask-kubernetes. This gives us much better multi-tenancy and
+   security isolation. It is currently undergoing a `biggish architecture change
+   <https://github.com/dask/dask-gateway/issues/198>`_, and we can switch once
+   that lands.
+#. Give each user their own uid / gids, to strengthen security boundaries. The best
+   way to do this is to use `EFS Access Points <https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html>`_.
+   This needs upstream work in the `AWS CSI Driver <https://github.com/kubernetes-sigs/aws-efs-csi-driver/issues/124>`_.
+   Switching to the AWS CSI Driver will also give us encryption in transit for home directories.
+#. tess-public and tess-private need to be on completely isolated resources - VPC, Cluster, etc.
+   We can do this when we really open it up to the public.
