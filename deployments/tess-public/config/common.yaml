@@ -1,7 +1,3 @@
-daskKubernetes:
-  serviceAccount:
-    enabled: false
-
 jupyterhub:
   cull:
     enabled: true
