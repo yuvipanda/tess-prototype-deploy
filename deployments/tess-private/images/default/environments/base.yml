@@ -5,6 +5,7 @@ channels:
 dependencies:
   # FIXME: Pin these somehow?
   - jupyterlab
+  - nodejs
   - nb_conda_kernels
   # For Jupyter Desktop Proxy
   - websockify==0.9.0
