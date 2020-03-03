@@ -90,7 +90,7 @@ RUN cd /tmp && \
 USER ${NB_USER}
 # Install environments one at a time!
 # Base environment has JupyterLab & related packages
-COPY environments/base.yml /tmp/default.yml
+COPY environments/default.yml /tmp/default.yml
 RUN conda env update --name default -f /tmp/default.yml
 RUN ${CONDA_DIR}/envs/default/bin/jupyter labextension install jupyterlab-server-proxy
 
