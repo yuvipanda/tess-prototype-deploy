@@ -33,7 +33,7 @@ ENV MIRAGE_DATA=/data/mirage \
 # conda related env vars
 ENV CONDA_DIR=/opt/conda
 ENV SHELL=/bin/bash
-ENV DEFAULT_ENV=base
+ENV DEFAULT_ENV=default
 ENV PATH=${CONDA_DIR}/bin:${CONDA_DIR}/envs/${DEFAULT_ENV}/bin:${PATH}
 
 USER root
@@ -90,8 +90,8 @@ RUN cd /tmp && \
 USER ${NB_USER}
 # Install environments one at a time!
 # Base environment has JupyterLab & related packages
-COPY environments/base.yml /tmp/base.yml
-RUN conda env update --name default -f /tmp/base.yml
+COPY environments/base.yml /tmp/default.yml
+RUN conda env update --name default -f /tmp/default.yml
 RUN ${CONDA_DIR}/envs/default/bin/jupyter labextension install jupyterlab-server-proxy
 
 COPY environments/wfirst-sit.yml /tmp/wfirst-sit.yml
