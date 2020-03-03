@@ -63,7 +63,7 @@ RUN ln -s ${CONDA_DIR}/etc/profile.d/conda.sh /etc/profile.d/conda.sh
 # Install apt packages, without any questions asked
 RUN apt-get update --yes > /dev/null && \
     DEBIAN_FRONTEND=noninteractive \
-    apt-get install --yes --no-install-recommends \
+    apt-get install --yes \
         curl rsync locales \
         dbus-x11 firefox xfce4 xfce4-panel xfce4-session xfce4-settings xorg xubuntu-icon-theme automake \
         libtool fftw3-dev libatlas-base-dev && \
