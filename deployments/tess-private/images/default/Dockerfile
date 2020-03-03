@@ -3,6 +3,11 @@ FROM continuumio/miniconda3:4.7.12
 
 LABEL maintainer="Science Platforms <cslocum@stsci.edu>"
 
+# We assume only one user per container, so make it unique
+# UID matches GID
+ARG NB_USER="jovyan"
+ARG NB_UID="1000"
+
 # Environment variables
 ENV MKL_THREADING_LAYER="GNU"
 
@@ -24,14 +29,36 @@ ENV MIRAGE_DATA=/data/mirage \
     WEBBPSF_PATH=/data/webbpsf \
     pandeia_refdata=/data/pandeia
 
+# conda related envs
+ENV CONDA_DIR=/opt/conda
 USER root
 
-Install apt packages
+# Create user & group jovyan
+RUN groupadd --gid ${NB_UID} ${NB_USER}
+RUN useradd \
+    --comment 'Jupyter container user' \
+    --create-home \
+    --no-log-init \
+    --shell /bin/bash \
+    --gid ${NB_UID} \
+    --uid ${NB_UID} \
+    ${NB_USER}
+
+# Install apt packages
 RUN apt-get update --yes > /dev/null && \
     apt-get install --yes \
-        curl rsync \
+        curl rsync locale-gen \
         dbus-x11 firefox xfce4 xfce4-panel xfce4-session xfce4-settings xorg xubuntu-icon-theme automake \
-        libtool fftw3-dev libatlas-base-dev
+        libtool fftw3-dev libatlas-base-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set up locales, and default to UTF-8
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+    locale-gen
+
+ENV LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8
 
 
 # Install sextractor under /usr/local
@@ -43,7 +70,11 @@ RUN cd /tmp &&
     make && \
     make install
 
+# Make sure our conda environments are modifyable by $NB_USER
+# This increases image size, ugh
+RUN chown -R ${NB_USER}:${NB_USER} ${CONDA_DIR}
 
+USER ${NB_USER}
 # Install environments one at a time!
 # Base environment has JupyterLab & related packages
 COPY environments/base.yml /tmp/base.yml
