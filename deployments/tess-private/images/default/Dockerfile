@@ -1,5 +1,6 @@
-# Inherit from minimal miniconda image, so we know exactly what we're getting
-FROM continuumio/miniconda3:4.7.12
+# Use latest ubuntu from community maintained buildpack-deps
+# https://hub.docker.com/_/buildpack-deps/
+FROM buildpack-deps:bionic-scm
 
 LABEL maintainer="Science Platforms <cslocum@stsci.edu>"
 
@@ -12,16 +13,16 @@ ARG NB_UID="1000"
 ENV MKL_THREADING_LAYER="GNU"
 
 # CRDS environment variables
-ENV CRDS_PATH=/home/jovyan/crds_cache
-ENV CRDS_SERVER_URL=https://jwst-serverless.stsci.edu
-ENV CRDS_S3_ENABLED=1
-ENV CRDS_S3_RETURN_URI=0
-ENV CRDS_MAPPING_URI=s3://dmd-test-crds/mappings/jwst
-ENV CRDS_REFERENCE_URI=s3://dmd-test-crds/references/jwst
-ENV CRDS_CONFIG_URI=s3://dmd-test-crds/config/jwst
-ENV CRDS_USE_PICKLES=0
-ENV CRDS_DOWNLOAD_MODE=plugin
-ENV CRDS_DOWNLOAD_PLUGIN='crds_s3_get ${SOURCE_URL} ${OUTPUT_PATH} ${FILE_SIZE} ${FILE_SHA1SUM}'
+ENV CRDS_PATH=/home/jovyan/crds_cache \
+    CRDS_SERVER_URL=https://jwst-serverless.stsci.edu \
+    CRDS_S3_ENABLED=1 \
+    CRDS_S3_RETURN_URI=0 \
+    CRDS_MAPPING_URI=s3://dmd-test-crds/mappings/jwst \
+    CRDS_REFERENCE_URI=s3://dmd-test-crds/references/jwst \
+    CRDS_CONFIG_URI=s3://dmd-test-crds/config/jwst \
+    CRDS_USE_PICKLES=0 \
+    CRDS_DOWNLOAD_MODE=plugin \
+    CRDS_DOWNLOAD_PLUGIN='crds_s3_get ${SOURCE_URL} ${OUTPUT_PATH} ${FILE_SIZE} ${FILE_SHA1SUM}'
 
 # ENV vars set in indiidual activate scripts previously
 ENV MIRAGE_DATA=/data/mirage \
@@ -29,8 +30,11 @@ ENV MIRAGE_DATA=/data/mirage \
     WEBBPSF_PATH=/data/webbpsf \
     pandeia_refdata=/data/pandeia
 
-# conda related envs
+# conda related env vars
 ENV CONDA_DIR=/opt/conda
+ENV SHELL=/bin/bash
+ENV PATH=${CONDA_DIR}/bin:${PATH}
+
 USER root
 
 # Create user & group jovyan
@@ -44,10 +48,22 @@ RUN useradd \
     --uid ${NB_UID} \
     ${NB_USER}
 
+# Make /opt writeable by ${NB_USER}
+RUN mkdir -p $(dirname ${CONDA_DIR}) && chown ${NB_USER}:${NB_USER} $(dirname ${CONDA_DIR})
+
+USER ${NB_USER}
+
+RUN curl -sSL https://repo.anaconda.com/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh > /tmp/miniconda-installer.sh && \
+    bash /tmp/miniconda-installer.sh  -b -p ${CONDA_DIR} && \
+    conda clean -tipsy
+
+USER root
+# Load conda profile scripts by default
+RUN ln -s ${CONDA_DIR}/etc/profile.d/conda.sh /etc/profile.d/conda.sh
 # Install apt packages
 RUN apt-get update --yes > /dev/null && \
     apt-get install --yes \
-        curl rsync locale-gen \
+        curl rsync locales \
         dbus-x11 firefox xfce4 xfce4-panel xfce4-session xfce4-settings xorg xubuntu-icon-theme automake \
         libtool fftw3-dev libatlas-base-dev && \
     rm -rf /var/lib/apt/lists/*
@@ -69,10 +85,6 @@ RUN cd /tmp && \
     ./configure --prefix=/usr/local && \
     make && \
     make install
-
-# Make sure our conda environments are modifyable by $NB_USER
-# This increases image size, ugh
-RUN chown -R ${NB_USER}:${NB_USER} ${CONDA_DIR}
 
 USER ${NB_USER}
 # Install environments one at a time!
