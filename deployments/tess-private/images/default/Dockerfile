@@ -77,10 +77,9 @@ ENV LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
 
-
 # Install sextractor under /usr/local
 RUN cd /tmp && \
-    curl -sSL https://github.com/astromatic/sextractor/archive/2.25.0.tar.gz | tar -xvf - && \
+    curl -sSL https://github.com/astromatic/sextractor/archive/2.25.0.tar.gz | tar -xzf - && \
     cd sextractor-2.25.0 && \
     sh autogen.sh && \
     ./configure --prefix=/usr/local && \
