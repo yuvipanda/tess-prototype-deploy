@@ -91,7 +91,7 @@ USER ${NB_USER}
 # Base environment has JupyterLab & related packages
 COPY environments/base.yml /tmp/base.yml
 RUN conda env update --name default -f /tmp/base.yml
-RUN conda activate default && jupyter labextension install jupyterlab-server-proxy
+RUN ${CONDA_DIR}/envs/default/bin/jupyter labextension install jupyterlab-server-proxy
 
 COPY environments/wfirst-sit.yml /tmp/wfirst-sit.yml
 RUN conda env create -f /tmp/wfirst-sit.yml
