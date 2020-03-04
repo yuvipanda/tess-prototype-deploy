@@ -53,7 +53,4 @@ dependencies:
   - git+https://github.com/spacetelescope/jwst.git@ec9c583
   - jwst-backgrounds==1.1.1
   - pandeia-engine==1.5
-# Change this back to a commit on master once
-# https://github.com/spacetelescope/pandeia-coronagraphy/pull/17 is merged:
-  - git+https://github.com/eslavich/pandeia-coronagraphy.git@eslavich-add-version-to-package-data
-#  - git+https://github.com/spacetelescope/pandeia-coronagraphy.git@#######
+ - git+https://github.com/spacetelescope/pandeia-coronagraphy.git@1d5ad4c
