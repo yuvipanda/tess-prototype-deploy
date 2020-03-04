@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: docker://yuvipanda/hubploy:20200219094916edf788
+      - uses: docker://yuvipanda/hubploy:2020030311412566ccc2
         name: test building image
         with:
-          args: build tess-public
+          args: build tess-public --no-cache
