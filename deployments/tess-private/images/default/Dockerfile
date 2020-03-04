@@ -91,19 +91,23 @@ USER ${NB_USER}
 # Install environments one at a time!
 # Base environment has JupyterLab & related packages
 COPY environments/default.yml /tmp/default.yml
-RUN conda env update --name default -f /tmp/default.yml
+RUN conda env update --name default -f /tmp/default.yml && \
+    conda clean -tipsy
 # FIXME: This extension doesn't support current version of lab
 # RUN ${CONDA_DIR}/envs/default/bin/jupyter labextension install jupyterlab-server-proxy
 
 
 COPY environments/wfirst-sit.yml /tmp/wfirst-sit.yml
-RUN conda env create -f /tmp/wfirst-sit.yml
+RUN conda env create -f /tmp/wfirst-sit.yml && \
+    conda clean -tipsy
 
 COPY environments/cvt.yml /tmp/cvt.yml
-RUN conda env create -f /tmp/cvt.yml
+RUN conda env create -f /tmp/cvt.yml && \
+    conda clean -tipsy
 
 COPY environments/mirage.yml /tmp/mirage.yml
-RUN conda env create -f /tmp/mirage.yml
+RUN conda env create -f /tmp/mirage.yml && \
+    conda clean -tipsy
 
 
 # # Add content to the global bashrc
