@@ -11,7 +11,8 @@ dependencies:
 # Mirage dependencies
 - asdf==2.4.2
 - astropy==3.2.1
-- gwcs==0.11.0 - healpy==1.12.10
+- gwcs==0.11.0
+- healpy==1.12.10
 - h5py==2.10.0
 - jwxml==0.3.0
 - matplotlib==3.1.1
