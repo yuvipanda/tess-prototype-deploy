@@ -7,6 +7,7 @@ dependencies:
   - jupyterlab
   - nodejs
   - nb_conda_kernels
+  - jupyterhub
   # For Jupyter Desktop Proxy
   - websockify==0.9.0
   - pip
