@@ -53,4 +53,4 @@ dependencies:
   - git+https://github.com/spacetelescope/jwst.git@ec9c583
   - jwst-backgrounds==1.1.1
   - pandeia-engine==1.5
- - git+https://github.com/spacetelescope/pandeia-coronagraphy.git@1d5ad4c
+  - git+https://github.com/spacetelescope/pandeia-coronagraphy.git@1d5ad4c
