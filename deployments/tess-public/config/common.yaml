@@ -14,3 +14,5 @@ jupyterhub:
   singleuser:
     storage:
       type: nil
+    memory:
+      limit: 1G
