@@ -54,3 +54,4 @@ dependencies:
   - jwst-backgrounds==1.1.1
   - pandeia-engine==1.5
   - git+https://github.com/spacetelescope/pandeia-coronagraphy.git@1d5ad4c
+  - django
